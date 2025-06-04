@@ -4,7 +4,7 @@ import { Box, Text } from "@chakra-ui/layout";
 import "./styles.css";
 import { IconButton, Spinner, useToast } from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogics";
-import { useEffect, useState } from "react";
+import { useEffect, useState , useCallback, useRef} from "react";
 import axios from "axios";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import ProfileModal from "./miscellaneous/ProfileModal";
@@ -17,7 +17,7 @@ import animationData from "../animations/typing.json";
 
 
 const ENDPOINT = "http://localhost:5000";
-var socket, selectedChatCompare;
+var socket;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
@@ -37,16 +37,19 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     },
   };
 
+  
+const selectedChatCompare = useRef();
+
   const { selectedChat, setSelectedChat, user, notification, setNotification } = ChatState();
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     if (!selectedChat) return;
 
     try {
       const config = {
         headers: {
           Authorization: `Bearer ${user.token}`,
-        }, 
+        },
       };
 
       setLoading(true);
@@ -64,7 +67,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         position: "bottom",
       });
     }
-  };
+  }, [selectedChat, user.token, toast]);
 
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
@@ -133,27 +136,27 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
 
-   {/* return () => {
+    return () => {
       socket.disconnect();
       socket.off("connected");
       socket.off("typing");
       socket.off("stop typing");
-    };*/
-  }
-  }, []);
+    };
+  
+  }, [user]);
 
   useEffect(() => {
     fetchMessages();
 
-    selectedChatCompare = selectedChat;
-  }, [selectedChat]);
+    selectedChatCompare.current = selectedChat;
+  }, [selectedChat, fetchMessages]);
 
   console.log(notification,"-----------");
   
 
   useEffect(() => {
     socket.on("message recieved", (newMessageRecieved) => {
-      if (!selectedChatCompare || selectedChatCompare._id !== newMessageRecieved.chat._id) {
+      if (!selectedChatCompare.current || selectedChatCompare.current._id !== newMessageRecieved.chat._id) {
         if (!notification.includes( newMessageRecieved)) {
           setNotification([newMessageRecieved, ...notification]);
           setFetchAgain(!fetchAgain);
