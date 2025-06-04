@@ -4,19 +4,21 @@ import { useHistory } from "react-router-dom";
 const ChatContext = createContext();
 
 const ChatProvider = ({ children }) => {
-  const [selectedChat, setSelectedChat] = useState();
-  const [user, setUser] = useState();
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [user, setUser] = useState(undefined); // start with undefined for loading state
   const [notification, setNotification] = useState([]);
-    const [chats, setChats] = useState([]);
-    
+  const [chats, setChats] = useState([]);
 
   const history = useHistory();
 
-  useEffect(() => {// fetch local state
+  useEffect(() => {
+    // fetch local user info once on mount
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     setUser(userInfo);
 
-    if (!userInfo) history.push("/");
+    if (!userInfo) {
+      history.push("/");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history]);
 
