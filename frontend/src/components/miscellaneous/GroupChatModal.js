@@ -18,6 +18,7 @@ import { useState } from "react";
 import { ChatState } from "../../Context/ChatProvider";
 import UserBadgeItem from "../UserAvatar/UserBadgeItem";
 import UserListItem from "../UserAvatar/UserListItem";
+//import { Query } from "mongoose";
 
 const GroupChatModal = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -58,8 +59,9 @@ const GroupChatModal = ({ children }) => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.get(`/api/user?search=${search}`, config);
+      const { data } = await axios.get(`/api/user?search=${query}`, config);
       //console.log(data);
+      setSearchResult(data);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
@@ -151,8 +153,9 @@ const GroupChatModal = ({ children }) => {
             </FormControl>
             <FormControl>
               <Input
-                placeholder="Add Users eg: John, Piyush, Jane"
+                placeholder="Add Users eg: John, Shivani, Jane"
                 mb={1}
+                value={search}
                 onChange={(e) => handleSearch(e.target.value)}
               />
             </FormControl>

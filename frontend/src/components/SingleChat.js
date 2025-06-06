@@ -28,19 +28,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
 
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: "xMidYMid slice",
-    },
-  };
+ 
 
   
 const selectedChatCompare = useRef();
 
   const { selectedChat, setSelectedChat, user, notification, setNotification } = ChatState();
+
+  //const typingTimeout = useRef(null);
 
   const fetchMessages = useCallback(async () => {
     if (!selectedChat) return;
@@ -155,19 +150,41 @@ const selectedChatCompare = useRef();
   
 
   useEffect(() => {
-    socket.on("message recieved", (newMessageRecieved) => {
-      if (!selectedChatCompare.current || selectedChatCompare.current._id !== newMessageRecieved.chat._id) {
-        if (!notification.includes( newMessageRecieved)) {
-          setNotification([newMessageRecieved, ...notification]);
-          setFetchAgain(!fetchAgain);
-        }
+    const handleMessageRecieved = (newMessageRecieved) => {
+      if (
+        !selectedChatCompare.current ||
+        selectedChatCompare.current._id !== newMessageRecieved.chat._id
+      ) {
+        setNotification((prev) => {
+          const alreadyExists = prev.some(
+            (msg) => msg._id === newMessageRecieved._id
+          );
+          if (!alreadyExists) {
+            setFetchAgain((prevFetch) => !prevFetch);
+            return [newMessageRecieved, ...prev];
+          }
+          return prev;
+        });
       } else {
         setMessages((prevMessages) => [...prevMessages, newMessageRecieved]);
       }
-    });
+    };
+  
+    socket.on("message recieved", handleMessageRecieved);
+  
+    return () => {
+      socket.off("message recieved", handleMessageRecieved);
+    };
+  }, [setNotification, setFetchAgain]);
 
-    return () => socket.off("message received");
-  }, [fetchAgain, notification, setFetchAgain, setNotification]);
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
 
   return (
     <>

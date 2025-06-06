@@ -20,17 +20,21 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
     const { selectedChat, setSelectedChat, user } = ChatState();
 
      
-     const handleRemove = async (user1) => {
-    if (selectedChat.groupAdmin._id !== user._id && user1._id !== user._id) {
-      toast({
-        title: "Only admins can remove someone!",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
-      return;
-    }
+    const handleRemove = async (user1) => {
+      // Compare IDs as strings for admin check
+      if (
+        String(selectedChat.groupAdmin._id) !== String(user._id) &&
+        String(user1._id) !== String(user._id)
+      ) {
+        toast({
+          title: "Only admins can remove someone!",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
+        return;
+      }
 
     try {
       setLoading(true);
@@ -113,28 +117,29 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
   }
 };
     
-    const handleAddUser = async (user1) => {
-    if (selectedChat.users.find((u) => u._id === user1._id)) {
-      toast({
-        title: "User Already in group!",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
-      return;
-    }
+const handleAddUser = async (user1) => {
+  if (selectedChat.users.find((u) => u._id === user1._id)) {
+    toast({
+      title: "User Already in group!",
+      status: "error",
+      duration: 5000,
+      isClosable: true,
+      position: "bottom",
+    });
+    return;
+  }
 
-    if (selectedChat.groupAdmin._id !== user._id) {
-      toast({
-        title: "Only admins can add someone!",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
-      return;
-    }
+  // Compare IDs as strings for admin check
+  if (String(selectedChat.groupAdmin._id) !== String(user._id)) {
+    toast({
+      title: "Only admins can add someone!",
+      status: "error",
+      duration: 5000,
+      isClosable: true,
+      position: "bottom",
+    });
+    return;
+  }
 
     try {
       setLoading(true);

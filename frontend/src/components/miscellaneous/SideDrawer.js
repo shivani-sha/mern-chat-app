@@ -69,17 +69,20 @@ const SideDrawer = () => {
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
 
-  const { user, setSelectedChat, chats, setChats, notification, setNotification } = ChatState();
+  const { user, setUser,setSelectedChat, chats, setChats, notification, setNotification } = ChatState();
   const history = useHistory();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  const logoutHandler = () => {
-    localStorage.removeItem("userInfo");
-    history.push("/");
-  };
+const logoutHandler = () => {
+  localStorage.removeItem("userInfo"); // clear localStorage
+  setUser(null);                       // clear user from context state
+  setSelectedChat(null);               // clear selected chat
+  setNotification([]);                 // clear notifications
+  history.push("/");                   // redirect to homepage/login
+};
 
-  const handleSearch = async () => {
+  async function handleSearch() {
     if (!search) {
       toast({
         title: "Please Enter Something in search",
@@ -112,7 +115,7 @@ const SideDrawer = () => {
       });
       setLoading(false);
     }
-  };
+  }
 
   const accessChat = async (userId) => {
     try {
