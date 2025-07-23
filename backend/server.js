@@ -2,6 +2,7 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "./.env") });
 
 console.log("MONGO_URI:", process.env.MONGO_URI);
+console.log("Node environment is:", process.env.NODE_ENV);
 
 const express = require("express");
 const cors = require("cors");
@@ -45,18 +46,14 @@ app.use('/api/message', messageRoutes);
 
 const __dirname1 = path.resolve();
 if (process.env.NODE_ENV === "production") {
-  // app.use(express.static(path.join(__dirname1, "/frontend/build")));
-
-  app.use(express.static(path.join(__dirname1, 'frontend', 'build')));
+  app.use(express.static(path.join(__dirname1, "/frontend/build")));
 
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname1, "frontend", "build", "index.html"));
+    res.sendFile(path.resolve(__dirname1, "frontend", "build", "index.html"));
   });
-} else {
-  app.get("/", (req, res) => {
-    res.send("API is Running Successfully");
-
-  });
+} else { app.get("/", (req, res) => {
+  res.send("API is Running Successfully");
+});
 }
 //----------------------Deployment--------------------
 
@@ -76,19 +73,10 @@ const server = app.listen(
   console.log(`Server running on PORT ${PORT}...`.yellow.bold)
 );
 
-// const io = require('socket.io')(server, {
-//   pingTimeout: 600000,
-//   cors: {
-//     origin: "http://localhost:3000",
-//   },
-// });
-
 const io = require('socket.io')(server, {
   pingTimeout: 600000,
   cors: {
-    origin: process.env.NODE_ENV === "production"
-      ? "https://talk-a-tive-a4j8.onrender.com"
-      : "http://localhost:3000",
+    origin: "http://localhost:3000",
   },
 });
 
