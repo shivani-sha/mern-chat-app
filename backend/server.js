@@ -2,7 +2,7 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "./.env") });
 
 console.log("MONGO_URI:", process.env.MONGO_URI);
-console.log("Node environment is:", process.env.NODE_ENV);
+// console.log("Node environment is:", process.env.NODE_ENV);
 
 const express = require("express");
 const cors = require("cors");
@@ -15,6 +15,9 @@ const messageRoutes = require("./routes/messageRoutes");
 
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const { log } = require("console");
+
+
+
 
 //dotenv.config();
 
